@@ -1,0 +1,59 @@
+seven.seventrees.nl {
+    tls arvind.nohar@seventrees.nl
+    reverse_proxy flask_prod:5000 {
+        flush_interval -1
+    }
+    header {
+        # CORS headers for embedding
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+        
+        # Security headers
+        X-Content-Type-Options nosniff
+        X-Frame-Options SAMEORIGIN
+        Referrer-Policy no-referrer-when-downgrade
+    }
+}
+
+
+testing.seventrees.nl {
+    tls arvind.nohar@seventrees.nl
+    
+    # Handle embedded iframe content
+    @embed {
+        query embed=true
+    }
+    handle @embed {
+        header Access-Control-Allow-Origin "*"
+        header Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        header Access-Control-Allow-Headers "Content-Type, Authorization"
+        # Remove frame restrictions for embedded content
+        header -X-Frame-Options
+        reverse_proxy host.docker.internal:5000 {
+            flush_interval -1
+        }
+    }
+    
+    # Handle injection script
+    @inject_script path /js/inject-chatbot.js
+    handle @inject_script {
+        header Access-Control-Allow-Origin "*"
+        header Content-Type "application/javascript"
+        header -X-Frame-Options
+        reverse_proxy host.docker.internal:5000
+    }
+    
+    # Default handling for all other routes
+    reverse_proxy host.docker.internal:5000 {
+        flush_interval -1
+    }
+    
+    header {
+        X-Content-Type-Options nosniff
+        Referrer-Policy no-referrer-when-downgrade
+        Access-Control-Allow-Origin "*"
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+    }
+}
