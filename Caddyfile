@@ -40,5 +40,5 @@ seven.seventrees.nl {
 }
 
 testing.seventrees.nl {
-    reverse_proxy http://localhost:8000
+    reverse_proxy http://supabase-kong:8000
 }
