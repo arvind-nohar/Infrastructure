@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:15
-    container_name: postgres
+    container_name: postgres_shared
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=Seventrees
@@ -10,28 +10,32 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init-scripts:/docker-entrypoint-initdb.d
+      - ./init-scripts:/docker-entrypoint-initdb.d  # For initialization scripts
+    networks:
+      - seventrees_network
     restart: unless-stopped
-    
 
   caddy:
     image: caddy:latest
-    container_name: caddy
+    container_name: caddy_shared
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
-      - ../Production/app/static:/usr/share/caddy/static/prod
-      - ../Testing/app/static:/usr/share/caddy/static/test
+      - ../Production/app/static:/usr/share/caddy/static/prod  # Adjust path
+      - ../Testing/app/static:/usr/share/caddy/static/test     # Adjust path
       - caddy_data:/data
       - caddy_config:/config
     ports:
       - "80:80"
       - "443:443"
+    networks:
+      - seventrees_network
     restart: unless-stopped
     depends_on:
       - postgres
-    # Use host networking to reach Windows services
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+
+networks:
+  seventrees_network:
+    external: true
 
 volumes:
   postgres_data:
