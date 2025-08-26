@@ -83,7 +83,7 @@ testing.seventrees.nl {
 
     handle {
         basic_auth {
-            {$PROXY_AUTH_USERNAME} {$PROXY_AUTH_PASSWORD}
+            seventrees Seven25!
         }	    	
 
         reverse_proxy studio:3000
