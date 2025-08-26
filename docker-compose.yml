@@ -18,6 +18,9 @@ services:
   caddy:
     image: caddy:latest
     container_name: caddy_shared
+    environment:
+      - PROXY_AUTH_USERNAME=seventrees  # Match your Supabase DASHBOARD_USERNAME
+      - PROXY_AUTH_PASSWORD=Seven25!    # Match your Supabase DASHBOARD_PASSWORD
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - ../Production/app/static:/usr/share/caddy/static/prod  # Adjust path

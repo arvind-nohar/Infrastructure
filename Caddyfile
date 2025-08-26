@@ -83,7 +83,7 @@ testing.seventrees.nl {
 
     handle {
         basic_auth {
-            "seventrees" "Seven25!"
+            {$PROXY_AUTH_USERNAME} {$PROXY_AUTH_PASSWORD}
         }	    	
 
         reverse_proxy studio:3000
