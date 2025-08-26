@@ -40,5 +40,5 @@ seven.seventrees.nl {
 }
 
 testing.seventrees.nl {
-    reverse_proxy pgweb:5434
+    reverse_proxy pgweb:8081
 }
