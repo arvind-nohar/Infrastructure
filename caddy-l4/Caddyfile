@@ -12,7 +12,7 @@
             }
           }
           # Your pooler is listening on 5434
-          proxy pooler:5434
+          proxy pooler:5432
         }
       }
       tls
