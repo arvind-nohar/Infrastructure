@@ -2,13 +2,12 @@
   servers {
     listener_wrappers {
       layer4 {
-        # Grab DB traffic by SNI
         @postgres tls sni testing.seventrees.nl
         route @postgres {
-          # Terminate TLS at Caddy (client uses sslmode=require)
+          # terminate client TLS at Caddy
           tls
-          # Then send raw Postgres bytes to the transaction port
-          proxy supabase-pooler:5432
+          # then proxy plaintext Postgres bytes to the pooler (transaction mode)
+          proxy supabase-pooler:6543
         }
       }
       tls
@@ -16,7 +15,7 @@
   }
 }
 
-# tiny HTTP site so Caddy can obtain a cert for the DB hostname via HTTP-01
+# tiny HTTP site so Caddy can obtain a cert for testing.seventrees.nl (HTTP-01)
 testing.seventrees.nl {
   respond "OK"
 }
