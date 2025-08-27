@@ -99,7 +99,7 @@ testing.seventrees.nl {
 
             # Raw TCP proxy to the pooler inside the Docker network
             proxy {
-                upstream supavisor:5432
+                upstream pooler:5432
             }
         }
       }
