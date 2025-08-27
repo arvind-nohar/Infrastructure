@@ -35,7 +35,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    # Attach to the same default network so "supavisor:5432" is resolvable
     networks:
       - seventrees_network
 
