@@ -15,26 +15,44 @@ services:
       - seventrees_network
     restart: unless-stopped
 
-  caddy:
-    image: caddy:latest
-    container_name: caddy_shared
+  # caddy:
+  #   image: caddy:latest
+  #   container_name: caddy_shared
+  #   environment:
+  #     - PROXY_AUTH_USERNAME=seventrees  # Match your Supabase DASHBOARD_USERNAME
+  #     - PROXY_AUTH_PASSWORD=Seven25!    # Match your Supabase DASHBOARD_PASSWORD
+  #   volumes:
+  #     - ./Caddyfile:/etc/caddy/Caddyfile
+  #     - ../Production/app/static:/usr/share/caddy/static/prod  # Adjust path
+  #     - ../Testing/app/static:/usr/share/caddy/static/test     # Adjust path
+  #     - caddy_data:/data
+  #     - caddy_config:/config
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   networks:
+  #     - seventrees_network
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - postgres
+
+  caddy-l4:
+    build:
+      context: ./caddy-l4          # folder you create below
+      dockerfile: Dockerfile
+    container_name: caddy-l4
+    restart: unless-stopped
     environment:
-      - PROXY_AUTH_USERNAME=seventrees  # Match your Supabase DASHBOARD_USERNAME
-      - PROXY_AUTH_PASSWORD=Seven25!    # Match your Supabase DASHBOARD_PASSWORD
+      DB_DOMAIN: "testing.seventrees.nl"
+      ACME_EMAIL: "arvind.nohar@seventrees.nl"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - ../Production/app/static:/usr/share/caddy/static/prod  # Adjust path
-      - ../Testing/app/static:/usr/share/caddy/static/test     # Adjust path
-      - caddy_data:/data
-      - caddy_config:/config
+      - ./caddy-l4/Caddyfile:/etc/caddy/Caddyfile:ro
+    # Expose only the TLS-wrapped Postgres listener
     ports:
-      - "80:80"
-      - "443:443"
+      - "5432:5432/tcp"
+    # Attach to the same default network so "supavisor:5432" is resolvable
     networks:
       - seventrees_network
-    restart: unless-stopped
-    depends_on:
-      - postgres
 
 networks:
   seventrees_network:
