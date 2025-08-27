@@ -1,28 +1,26 @@
 {
   email arvind.nohar@seventrees.nl
-  # Make the HTTP app use high ports so L4 can bind :443
+  # Let the HTTP app use high ports so L4 can bind :443
   http_port 8080
   https_port 8443
 }
 
-# ---------- Layer-4 multiplexer on :443 ----------
 layer4 {
-  0.0.0.0:443 {
-    # 1) Route Postgres by SNI: testing.seventrees.nl
+  :443 {
+    # Match Postgres connections by SNI
     @pg {
       tls
       tls.sni testing.seventrees.nl
     }
-    handle @pg {
-      # Terminate client TLS at Caddy, then pass plain TCP to pooler
+    route @pg {
       tls
       proxy {
-        upstream pooler:5434   # <-- your pooler service/port
+        upstream pooler:5434
       }
     }
 
-    # 2) Default: terminate TLS, then proxy plaintext HTTP to the HTTP app
-    handle {
+    # Default: terminate TLS then send HTTP to the HTTP app on :8080
+    route {
       tls
       proxy {
         upstream 127.0.0.1:8080
@@ -31,16 +29,12 @@ layer4 {
   }
 }
 
-# ---------- HTTP app (now on :8080 behind L4) ----------
-# Plain HTTP here because L4 already did TLS on :443.
+# HTTP app now listens on :8080 behind L4
 seven.seventrees.nl {
   encode gzip
-
-  # Your existing web backend
   reverse_proxy host.docker.internal:5000 {
     flush_interval -1
   }
-
   header {
     X-Content-Type-Options nosniff
     Referrer-Policy no-referrer-when-downgrade
@@ -49,7 +43,6 @@ seven.seventrees.nl {
     Access-Control-Allow-Headers "Content-Type, Authorization"
   }
 
-  # (Optional) your extra routes kept as-is, still fine on HTTP app:
   @embed {
     query embed=true
   }
