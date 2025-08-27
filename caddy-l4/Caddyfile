@@ -12,6 +12,11 @@
   }
 }
 
+# Small site so Caddy issues a cert for testing.seventrees.nl
+testing.seventrees.nl {
+  respond "OK"
+}
+
 seven.seventrees.nl {
     tls arvind.nohar@seventrees.nl
     
