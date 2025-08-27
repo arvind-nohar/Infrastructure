@@ -2,11 +2,9 @@
   servers {
     listener_wrappers {
       layer4 {
-        # SNI match for the DB hostname
         @postgres tls sni testing.seventrees.nl
         route @postgres {
-          # ALPN not required unless you use PG17 direct TLS; safe to omit
-          proxy supavisor:6543
+          proxy supabase-pooler:6543   # transaction mode
         }
       }
       tls
