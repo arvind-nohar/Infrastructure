@@ -1,46 +1,46 @@
 {
   email arvind.nohar@seventrees.nl
-  # Let the HTTP app use high ports so L4 can bind :443
+  # Make the HTTP app use high ports so L4 can bind :443
   http_port 8080
   https_port 8443
 }
 
-# -------- Layer-4 multiplexer on :443 --------
+# ---------- Layer-4 multiplexer on :443 ----------
 layer4 {
   0.0.0.0:443 {
-
     # 1) Route Postgres by SNI: testing.seventrees.nl
     @pg {
       tls
       tls.sni testing.seventrees.nl
     }
     handle @pg {
-      # terminate TLS at Caddy, then proxy raw TCP to pooler
+      # Terminate client TLS at Caddy, then pass plain TCP to pooler
       tls
       proxy {
         upstream pooler:5434   # <-- your pooler service/port
       }
     }
 
-    # 2) Everything else on :443 = normal HTTPS for websites
-    # After TLS termination, if it's HTTP, send to HTTP app on :8080
-    @is_http http
-    handle @is_http {
-      proxy { upstream 127.0.0.1:8080 }
+    # 2) Default: terminate TLS, then proxy plaintext HTTP to the HTTP app
+    handle {
+      tls
+      proxy {
+        upstream 127.0.0.1:8080
+      }
     }
-
-    # Default: terminate TLS so we can inspect protocol (HTTP matcher above)
-    tls
   }
 }
 
-# -------- HTTP app (now on :8080 behind L4) --------
-# Your web site(s) — plain HTTP here because L4 already did TLS
+# ---------- HTTP app (now on :8080 behind L4) ----------
+# Plain HTTP here because L4 already did TLS on :443.
 seven.seventrees.nl {
   encode gzip
+
+  # Your existing web backend
   reverse_proxy host.docker.internal:5000 {
     flush_interval -1
   }
+
   header {
     X-Content-Type-Options nosniff
     Referrer-Policy no-referrer-when-downgrade
@@ -48,27 +48,26 @@ seven.seventrees.nl {
     Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
     Access-Control-Allow-Headers "Content-Type, Authorization"
   }
-    # Handle embedded iframe content
-    @embed {
-        query embed=true
-    }
-    handle @embed {
-        header Access-Control-Allow-Origin "*"
-        header Access-Control-Allow-Methods "GET, POST, OPTIONS"
-        header Access-Control-Allow-Headers "Content-Type, Authorization"
-        # Remove frame restrictions for embedded content
-        header -X-Frame-Options
-        reverse_proxy host.docker.internal:5000 {
-            flush_interval -1
-        }
-    }
 
-    # Handle injection script
-    @inject_script path /js/inject-chatbot.js
-    handle @inject_script {
-        header Access-Control-Allow-Origin "*"
-        header Content-Type "application/javascript"
-        header -X-Frame-Options
-        reverse_proxy host.docker.internal:5000
-    }  
+  # (Optional) your extra routes kept as-is, still fine on HTTP app:
+  @embed {
+    query embed=true
+  }
+  handle @embed {
+    header Access-Control-Allow-Origin "*"
+    header Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    header Access-Control-Allow-Headers "Content-Type, Authorization"
+    header -X-Frame-Options
+    reverse_proxy host.docker.internal:5000 {
+      flush_interval -1
+    }
+  }
+
+  @inject_script path /js/inject-chatbot.js
+  handle @inject_script {
+    header Access-Control-Allow-Origin "*"
+    header Content-Type "application/javascript"
+    header -X-Frame-Options
+    reverse_proxy host.docker.internal:5000
+  }
 }
