@@ -4,7 +4,10 @@
       layer4 {
         @postgres tls sni testing.seventrees.nl
         route @postgres {
-          proxy supabase-pooler:6543   # transaction mode
+          # terminate TLS at Caddy for this SNI
+          tls
+          # send raw TCP to the pooler (transaction mode)
+          proxy supabase-pooler:6543
         }
       }
       tls
@@ -12,9 +15,9 @@
   }
 }
 
-# Small site so Caddy issues a cert for testing.seventrees.nl
+# Make Caddy obtain a cert for the DB hostname
 testing.seventrees.nl {
-  respond "OK"
+  respond 200
 }
 
 seven.seventrees.nl {
