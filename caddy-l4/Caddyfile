@@ -1,3 +1,17 @@
+# Layer-4 app: listen on 0.0.0.0:5432, terminate TLS, proxy to Supavisor
+{
+    layer4 {
+        0.0.0.0:5432 {
+            route {
+                tls
+                proxy {
+                    upstream pooler:5432
+                }
+            }
+        }
+    }
+}
+
 seven.seventrees.nl {
     tls arvind.nohar@seventrees.nl
     
@@ -87,18 +101,4 @@ testing.seventrees.nl {
     
     header -server
 
-}
-
-# Layer-4 app: listen on 0.0.0.0:5432, terminate TLS, proxy to Supavisor
-{
-    layer4 {
-        0.0.0.0:5432 {
-            route {
-                tls
-                proxy {
-                    upstream pooler:5432
-                }
-            }
-        }
-    }
 }
