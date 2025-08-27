@@ -2,17 +2,11 @@
   servers {
     listener_wrappers {
       layer4 {
-        # Route Postgres when SNI is the DB hostname
+        # SNI match for the DB hostname
         @postgres tls sni testing.seventrees.nl
         route @postgres {
-          # (optional but nice for PG 17+)
-          tls {
-            connection_policy {
-              alpn postgresql
-            }
-          }
-          # Your pooler is listening on 5434
-          proxy pooler:5432
+          # ALPN not required unless you use PG17 direct TLS; safe to omit
+          proxy supavisor:6543
         }
       }
       tls
