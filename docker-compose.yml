@@ -1,20 +1,4 @@
 services:
-  postgres:
-    image: postgres:15
-    container_name: postgres_shared
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=Seventrees
-      - POSTGRES_DB=users_DB
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init-scripts:/docker-entrypoint-initdb.d  # For initialization scripts
-    networks:
-      - seventrees_network
-    restart: unless-stopped
-
   # caddy:
   #   image: caddy:latest
   #   container_name: caddy_shared

@@ -87,21 +87,22 @@ testing.seventrees.nl {
     
     header -server
 
-    # Layer-4 app: listen on 0.0.0.0:5432, terminate TLS, proxy to Supavisor
-    layer4 {
-        # Public Postgres endpoint (TLS on):5432
-        0.0.0.0:5432 {
-            route {
-            # Terminate client TLS and obtain/renew certs automatically.
-            # Caddy will ACME-challenge via its HTTP app (ports 80/443) if present,
-            # or via TLS-ALPN when suitable.
-            tls
+}
 
-            # Raw TCP proxy to the pooler inside the Docker network
-            proxy {
-                upstream pooler:5432
-            }
+# Layer-4 app: listen on 0.0.0.0:5432, terminate TLS, proxy to Supavisor
+layer4 {
+    # Public Postgres endpoint (TLS on):5432
+    0.0.0.0:5432 {
+        route {
+        # Terminate client TLS and obtain/renew certs automatically.
+        # Caddy will ACME-challenge via its HTTP app (ports 80/443) if present,
+        # or via TLS-ALPN when suitable.
+        tls
+
+        # Raw TCP proxy to the pooler inside the Docker network
+        proxy {
+            upstream pooler:5432
         }
-      }
+    }
     }
 }
