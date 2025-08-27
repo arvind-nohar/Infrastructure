@@ -1,13 +1,14 @@
 # Layer-4 app: listen on 0.0.0.0:5432, terminate TLS, proxy to Supavisor
 {
-    layer4 {
-        0.0.0.0:5432 {
-            route {
-                tls
-                proxy {
-                    upstream pooler:5432
+    servers {
+        listener_wrappers {
+            layer4 {
+                @postgres tls sni testing.seventrees.nl
+                route @postgres {
+                    proxy pooler:5432
                 }
             }
+            tls
         }
     }
 }
