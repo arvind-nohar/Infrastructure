@@ -1,10 +1,14 @@
+# Layer-4 app: listen on 0.0.0.0:5432, terminate TLS, proxy to Supavisor
 {
-    layer4 {
-        testing.seventrees.nl:443 {
-            @postgres tls sni testing.seventrees.nl
-            route @postgres {
-                proxy postgres:5432
+    servers {
+        listener_wrappers {
+            layer4 {
+                @postgres tls sni testing.seventrees.nl
+                route @postgres {
+                    proxy supabase-pooler:6543
+                }
             }
+            tls
         }
     }
 }
@@ -49,3 +53,53 @@ seven.seventrees.nl {
         Access-Control-Allow-Headers "Content-Type, Authorization"
     }
 }
+
+# CORS snippet for handling cross-origin requests
+(cors) {
+    @cors_preflight method OPTIONS
+    @cors header Origin {args.0}
+    
+    handle @cors_preflight {
+        header Access-Control-Allow-Origin "{args.0}"
+        header Access-Control-Allow-Methods "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS,TRACE,CONNECT"
+        header Access-Control-Allow-Headers *
+        header Access-Control-Allow-Credentials "true"
+        header Access-Control-Max-Age "86400"
+        respond "" 204
+    }
+    
+    handle @cors {
+        header Access-Control-Allow-Origin "{args.0}"
+        header Access-Control-Allow-Credentials "true"
+    }
+}
+
+# testing.seventrees.nl {
+    
+#     @supa_api path /rest/v1/* /auth/v1/* /realtime/v1/* /functions/v1/*
+
+#     handle @supa_api {
+#         reverse_proxy kong:8000
+#     }
+
+#     handle_path /storage/v1/* {
+#         import cors *
+#         reverse_proxy storage:5000
+#     }
+
+#     handle /upload/resumable* {
+#         import cors *
+#         reverse_proxy storage:5000
+#     }
+
+#     handle_path /goapi/* {
+#         reverse_proxy kong:8000
+#     }
+
+#     handle {
+#         reverse_proxy studio:3000
+#     }
+    
+#     header -server
+
+# }
