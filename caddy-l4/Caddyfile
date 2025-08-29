@@ -61,30 +61,6 @@ seven.seventrees.nl {
 
 testing.seventrees.nl {
     
-    @supa_api path /rest/v1/* /auth/v1/* /realtime/v1/* /functions/v1/*
-
-    handle @supa_api {
-        reverse_proxy kong:8000
-    }
-
-    handle_path /storage/v1/* {
-        import cors *
-        reverse_proxy storage:5000
-    }
-
-    handle /upload/resumable* {
-        import cors *
-        reverse_proxy storage:5000
-    }
-
-    handle_path /goapi/* {
-        reverse_proxy kong:8000
-    }
-
-    handle {
-        reverse_proxy studio:3000
-    }
-    
-    header -server
+    reverse_proxy pgweb:8081
 
 }
