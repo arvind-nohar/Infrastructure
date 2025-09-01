@@ -58,9 +58,3 @@ seven.seventrees.nl {
         header Access-Control-Allow-Credentials "true"
     }
 }
-
-testing.seventrees.nl {
-    
-    reverse_proxy pgweb:8081
-
-}
