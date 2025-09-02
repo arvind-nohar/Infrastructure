@@ -1,21 +1,19 @@
 {
-    servers {
-        listener_wrappers {
-            layer4 {
-                @postgres tls sni testing.seventrees.nl
-                route @postgres {
-                    tls {
-                      connection_policy {
-                        alpn postgresql
-                      }
-                    }
-                    proxy pg_sales_prod:5432
-                }
-            }
-            tls
+    # Global options
+    auto_https on
+    email arvind.nohar@seventrees.nl
+    
+    # Layer 4 configuration for PostgreSQL TLS termination
+    layer4 {
+        # PostgreSQL Production - TLS terminated at Caddy
+        testing.seventrees.nl:5432 {
+            tls 
+            proxy pg_sales_prod:5432
         }
+        
     }
 }
+
 
 seven.seventrees.nl {
     tls arvind.nohar@seventrees.nl
