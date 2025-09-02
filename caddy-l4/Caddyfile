@@ -2,12 +2,9 @@
     email arvind.nohar@seventrees.nl
    
     layer4 {
-        # PostgreSQL Production - Use port 5433 for TLS
-        testing.seventrees.nl:5433 {
-            @tls tls
-            route @tls {
-                proxy pg_sales_prod:5432
-            }
+        # Simple TCP proxy without TLS termination
+        testing.seventrees.nl:5432 {
+            proxy pg_sales_prod:5432
         }
     }
 }
