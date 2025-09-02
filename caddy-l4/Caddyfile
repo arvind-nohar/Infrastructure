@@ -4,7 +4,12 @@
             layer4 {
                 @postgres tls sni testing.seventrees.nl
                 route @postgres {
-                    proxy pg_sales_prod:5432
+                    tls {
+                      connection_policy {
+                        alpn postgresql
+                      }
+                    }
+                    proxy pg_sales_prod:6544
                 }
             }
             tls

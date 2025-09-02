@@ -31,7 +31,6 @@ services:
       ACME_EMAIL: "arvind.nohar@seventrees.nl"
     volumes:
       - ./caddy-l4/Caddyfile:/etc/caddy/Caddyfile:ro
-    # Expose only the TLS-wrapped Postgres listener
     ports:
       - "80:80"
       - "443:443"
