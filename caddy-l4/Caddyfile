@@ -1,15 +1,14 @@
 {
-    # Global options
     email arvind.nohar@seventrees.nl
-    
-    # Layer 4 configuration for PostgreSQL TLS termination
+   
     layer4 {
-        # PostgreSQL Production - TLS terminated at Caddy
-        testing.seventrees.nl:5432 {
-            tls 
-            proxy pg_sales_prod:5432
+        # PostgreSQL Production - Use port 5433 for TLS
+        testing.seventrees.nl:5433 {
+            @tls tls
+            route @tls {
+                proxy pg_sales_prod:5432
+            }
         }
-        
     }
 }
 
