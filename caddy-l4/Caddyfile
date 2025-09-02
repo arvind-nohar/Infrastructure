@@ -1,10 +1,18 @@
 {
-    email arvind.nohar@seventrees.nl
-   
-    layer4 {
-        # Simple TCP proxy without TLS termination
-        testing.seventrees.nl:5432 {
-            proxy pg_sales_prod:5432
+    servers {
+        listener_wrappers {
+            layer4 {
+                @postgres tls sni testing.seventrees.nl
+                route @postgres {
+                    tls {
+                      connection_policy {
+                        alpn postgresql
+                      }
+                    }
+                    proxy postgres:5432
+                }
+            }
+            tls
         }
     }
 }
