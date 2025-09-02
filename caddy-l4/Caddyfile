@@ -1,3 +1,17 @@
+{
+    servers {
+        listener_wrappers {
+            layer4 {
+                @postgres tls sni testing.seventrees.nl
+                route @postgres {
+                    proxy pg_sales_prod:5432
+                }
+            }
+            tls
+        }
+    }
+}
+
 seven.seventrees.nl {
     tls arvind.nohar@seventrees.nl
     
@@ -56,19 +70,5 @@ seven.seventrees.nl {
     handle @cors {
         header Access-Control-Allow-Origin "{args.0}"
         header Access-Control-Allow-Credentials "true"
-    }
-}
-
-{
-    servers {
-        listener_wrappers {
-            layer4 {
-                @postgres tls sni testing.seventrees.nl
-                route @postgres {
-                    proxy pg_sales_prod:5432
-                }
-            }
-            tls
-        }
     }
 }
