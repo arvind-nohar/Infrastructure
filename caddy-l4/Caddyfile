@@ -9,7 +9,7 @@
                         alpn postgresql
                       }
                     }
-                    proxy postgres:5432
+                    proxy pg_sales_prod:6544
                 }
             }
             tls
