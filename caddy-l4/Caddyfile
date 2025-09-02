@@ -1,6 +1,5 @@
 {
     # Global options
-    auto_https on
     email arvind.nohar@seventrees.nl
     
     # Layer 4 configuration for PostgreSQL TLS termination
