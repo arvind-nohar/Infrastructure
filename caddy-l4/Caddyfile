@@ -3,7 +3,7 @@
         listener_wrappers {
             layer4 {
                 @postgres tls sni testing.seventrees.nl
-                route @pg_sales_prod {
+                route @postgres {
                     tls {
                       connection_policy {
                         alpn postgresql
