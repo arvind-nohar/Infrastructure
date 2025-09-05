@@ -20,7 +20,7 @@ services:
     image: ghcr.io/browserless/chromium
     container_name: browserless_one
     environment:
-      - TOKEN=your-token-here
+      - TOKEN=6R0W53R135510
       - CONCURRENT=10
       - PROXY_HOST=testing.seventrees.nl
       - PROXY_PORT=443
@@ -39,7 +39,7 @@ services:
     image: ghcr.io/browserless/chromium
     container_name: browserless_two
     environment:
-      - TOKEN=your-token-here
+      - TOKEN=6R0W53R135510
       - CONCURRENT=10
       - PROXY_HOST=testing.seventrees.nl
       - PROXY_PORT=443
