@@ -18,19 +18,50 @@ services:
 
   browserless_one:
     image: ghcr.io/browserless/chromium
+    container_name: browserless_one
     environment:
-      - TOKEN=6R0W53R135510
+      - TOKEN=your-token-here
       - CONCURRENT=10
+      - PROXY_HOST=testing.seventrees.nl
+      - PROXY_PORT=443
+      - PROXY_SSL=true
+      - CORS=true
+      - HEALTH=true
+      - MAX_MEMORY_PERCENT=85
+      - MAX_CPU_PERCENT=85
+      - TIMEOUT=60000
+      - DEBUG=browserless.io:*
     networks:
       - seventrees_network
-
+    restart: unless-stopped
+    
   browserless_two:
     image: ghcr.io/browserless/chromium
+    container_name: browserless_two
     environment:
-      - TOKEN=6R0W53R135510
+      - TOKEN=your-token-here
       - CONCURRENT=10
+      - PROXY_HOST=testing.seventrees.nl
+      - PROXY_PORT=443
+      - PROXY_SSL=true
+      - CORS=true
+      - HEALTH=true
+      - MAX_MEMORY_PERCENT=85
+      - MAX_CPU_PERCENT=85
+      - TIMEOUT=60000
+      - DEBUG=browserless.io:*
     networks:
       - seventrees_network
+    restart: unless-stopped
+
+networks:
+  seventrees_network:
+    external: true
+    
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:
 
   # caddy-l4:
   #   build:
@@ -48,12 +79,3 @@ services:
   #     - "443:443"
   #   networks:
   #     - seventrees_network
-
-networks:
-  seventrees_network:
-    external: true
-
-volumes:
-  postgres_data:
-  caddy_data:
-  caddy_config:
