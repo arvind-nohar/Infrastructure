@@ -133,9 +133,4 @@ testing.seventrees.nl {
         -Server
     }
     
-    # Logging for monitoring
-    log {
-        output file /var/log/caddy/browserless-access.log
-        format single_field common_log
-    }
 }
