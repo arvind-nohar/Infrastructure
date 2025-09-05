@@ -73,7 +73,7 @@ testing.seventrees.nl {
         reverse_proxy {
             to browserless_one:3000 browserless_two:3000
             lb_policy least_conn
-            health_uri "/metrics?token=your-token-here"
+            health_uri "/metrics?6R0W53R135510"
             health_interval 30s
             health_timeout 10s
             health_status 2xx
