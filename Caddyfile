@@ -63,30 +63,30 @@ seven.seventrees.nl {
 # Browserless load balancer
 testing.seventrees.nl {
     tls arvind.nohar@seventrees.nl
-    
-    # Import CORS handling
+   
+    # Import CORS handling - Browserless handles CORS internally when CORS=true
     import cors *
-    
-    # Health check endpoint
+   
+    # Health check endpoint - expose Browserless metrics with token
     @health path /health
     handle @health {
         reverse_proxy {
             to browserless_one:3000 browserless_two:3000
             lb_policy least_conn
-            health_uri /
+            health_uri "/metrics?token=your-token-here"
             health_interval 30s
             health_timeout 10s
             health_status 2xx
         }
     }
-    
-    # WebSocket upgrade handling for /workspace and /session endpoints
-    @websocket {
-        path /workspace/* /session/*
+   
+    # DevTools WebSocket connections - critical for debugging
+    @devtools_ws {
+        path /devtools/browser/* /devtools/page/*
         header Connection *Upgrade*
         header Upgrade websocket
     }
-    handle @websocket {
+    handle @devtools_ws {
         reverse_proxy {
             to browserless_one:3000 browserless_two:3000
             lb_policy ip_hash  # Sticky sessions for WebSockets
@@ -94,42 +94,86 @@ testing.seventrees.nl {
             header_up X-Forwarded-For {remote_host}
             header_up X-Forwarded-Proto {scheme}
             header_up Host {host}
+            header_up Connection {>Connection}
+            header_up Upgrade {>Upgrade}
         }
     }
-    
-    # All other Browserless traffic
+   
+    # Playwright and general WebSocket connections
+    @playwright_ws {
+        path /playwright/* /chromium/playwright/* /chromium/*
+        header Connection *Upgrade*
+        header Upgrade websocket
+    }
+    handle @playwright_ws {
+        reverse_proxy {
+            to browserless_one:3000 browserless_two:3000
+            lb_policy ip_hash  # Sticky sessions for WebSockets
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+            header_up Host {host}
+            header_up Connection {>Connection}
+            header_up Upgrade {>Upgrade}
+        }
+    }
+   
+    # API endpoints that require authentication token
+    @api_endpoints {
+        path /pdf* /screenshot* /content* /scrape* /function* /download* /performance*
+        path /chromium/* /json/* /active* /config* /meta* /metrics* /pressure* /sessions*
+    }
+    handle @api_endpoints {
+        reverse_proxy {
+            to browserless_one:3000 browserless_two:3000
+            lb_policy least_conn
+            
+            # Forward real client info
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+            header_up Host {host}
+            
+            # Preserve authorization headers
+            header_up Authorization {>Authorization}
+        }
+    }
+   
+    # All other Browserless traffic (including root path for docs)
     reverse_proxy {
         to browserless_one:3000 browserless_two:3000
         lb_policy least_conn
-        
-        # Forward real client info
+       
+        # Forward real client info and proxy information
         header_up X-Real-IP {remote_host}
         header_up X-Forwarded-For {remote_host}
         header_up X-Forwarded-Proto {scheme}
         header_up Host {host}
-        
-        # Health checking - use /metrics endpoint instead of /
+        header_up X-Forwarded-Host {host}
+       
+        # Health checking - use /metrics endpoint
         health_uri /metrics
         health_interval 30s
         health_timeout 10s
         health_status 2xx
-        
+       
         # Fail over configuration
         fail_duration 30s
         max_fails 3
         unhealthy_status 5xx
         unhealthy_latency 10s
     }
-    
-    # Security headers
+   
+    # Security headers (lighter for API usage)
     header {
         X-Content-Type-Options nosniff
-        X-Frame-Options DENY
-        X-XSS-Protection "1; mode=block"
         Referrer-Policy strict-origin-when-cross-origin
-        
+       
         # Remove server information
         -Server
+        
+        # Allow framing for embedded usage
+        X-Frame-Options SAMEORIGIN
     }
-    
+   
 }
