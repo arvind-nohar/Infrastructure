@@ -17,8 +17,6 @@ services:
     networks:
       - seventrees_network
     restart: unless-stopped
-    depends_on:
-      - postgres
 
   browserless_one:
     image: ghcr.io/browserless/chromium
