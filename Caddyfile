@@ -60,120 +60,27 @@ seven.seventrees.nl {
     }
 }
 
-# Browserless load balancer
 testing.seventrees.nl {
     tls arvind.nohar@seventrees.nl
-   
-    # Import CORS handling - Browserless handles CORS internally when CORS=true
-    import cors *
-   
-    # Health check endpoint - expose Browserless metrics with token
-    @health path /health
-    handle @health {
-        reverse_proxy {
-            to browserless_one:3000 browserless_two:3000
-            lb_policy least_conn
-            health_uri "/metrics?6R0W53R135510"
-            health_interval 30s
-            health_timeout 10s
-            health_status 2xx
-        }
-    }
-   
-    # DevTools WebSocket connections - critical for debugging
-    @devtools_ws {
-        path /devtools/browser/* /devtools/page/*
-        header Connection *Upgrade*
-        header Upgrade websocket
-    }
-    handle @devtools_ws {
-        reverse_proxy {
-            to browserless_one:3000 browserless_two:3000
-            lb_policy ip_hash  # Sticky sessions for WebSockets
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto {scheme}
-            header_up Host {host}
-            header_up Connection {>Connection}
-            header_up Upgrade {>Upgrade}
-        }
-    }
-   
-    # Playwright and general WebSocket connections
-    @playwright_ws {
-        path /playwright/* /chromium/playwright/* /chromium/*
-        header Connection *Upgrade*
-        header Upgrade websocket
-    }
-    handle @playwright_ws {
-        reverse_proxy {
-            to browserless_one:3000 browserless_two:3000
-            lb_policy ip_hash  # Sticky sessions for WebSockets
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto {scheme}
-            header_up Host {host}
-            header_up Connection {>Connection}
-            header_up Upgrade {>Upgrade}
-        }
-    }
-   
-    # API endpoints that require authentication token
-    @api_endpoints {
-        path /pdf* /screenshot* /content* /scrape* /function* /download* /performance*
-        path /chromium/* /json/* /active* /config* /meta* /metrics* /pressure* /sessions*
-    }
-    handle @api_endpoints {
-        reverse_proxy {
-            to browserless_one:3000 browserless_two:3000
-            lb_policy least_conn
-            
-            # Forward real client info
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto {scheme}
-            header_up Host {host}
-            
-            # Preserve authorization headers
-            header_up Authorization {>Authorization}
-        }
-    }
-   
-    # All other Browserless traffic (including root path for docs)
+    
     reverse_proxy {
         to browserless_one:3000 browserless_two:3000
         lb_policy least_conn
-       
-        # Forward real client info and proxy information
-        header_up X-Real-IP {remote_host}
-        header_up X-Forwarded-For {remote_host}
-        header_up X-Forwarded-Proto {scheme}
-        header_up Host {host}
-        header_up X-Forwarded-Host {host}
-       
-        # Health checking - use /metrics endpoint
-        health_uri /metrics
-        health_interval 30s
-        health_timeout 10s
-        health_status 2xx
-       
-        # Fail over configuration
+        
         fail_duration 30s
         max_fails 3
-        unhealthy_status 5xx
-        unhealthy_latency 10s
-    }
-   
-    # Security headers (lighter for API usage)
-    header {
-        X-Content-Type-Options nosniff
-        Referrer-Policy strict-origin-when-cross-origin
-       
-        # Remove server information
-        -Server
+        unhealthy_status 5xx 429
         
-        # Allow framing for embedded usage
-        X-Frame-Options SAMEORIGIN
+        header_up Upgrade {>Upgrade}
+        header_up Connection {>Connection}
+        header_up Host {host}
+        
+        timeout 900s
+        dial_timeout 900s
+        
+        health_uri /
+        health_interval 30s
+        health_timeout 10s
+        health_status 4xx 5xx
     }
-   
 }

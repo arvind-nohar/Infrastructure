@@ -31,6 +31,8 @@ services:
       - MAX_CPU_PERCENT=85
       - TIMEOUT=60000
       - DEBUG=browserless.io:*
+    ports:
+      - 3000:3000
     networks:
       - seventrees_network
     restart: unless-stopped
@@ -50,6 +52,8 @@ services:
       - MAX_CPU_PERCENT=85
       - TIMEOUT=60000
       - DEBUG=browserless.io:*
+    ports:
+      - 3000:3000      
     networks:
       - seventrees_network
     restart: unless-stopped
