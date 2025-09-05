@@ -7,8 +7,6 @@ services:
       - PROXY_AUTH_PASSWORD=Seven25!    # Match your Supabase DASHBOARD_PASSWORD
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
-      - ../Production/app/static:/usr/share/caddy/static/prod  # Adjust path
-      - ../Testing/app/static:/usr/share/caddy/static/test     # Adjust path
       - caddy_data:/data
       - caddy_config:/config
     ports:
