@@ -23,7 +23,7 @@ services:
   browserless_one:
     image: ghcr.io/browserless/chromium
     environment:
-      - TOKEN=your-token-here
+      - TOKEN=6R0W53R135510
       - CONCURRENT=10
     networks:
       - seventrees_network
@@ -31,7 +31,7 @@ services:
   browserless_two:
     image: ghcr.io/browserless/chromium
     environment:
-      - TOKEN=your-token-here
+      - TOKEN=6R0W53R135510
       - CONCURRENT=10
     networks:
       - seventrees_network
