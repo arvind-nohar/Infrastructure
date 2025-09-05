@@ -2,9 +2,6 @@ services:
   caddy:
     image: caddy:latest
     container_name: caddy_shared
-    environment:
-      - PROXY_AUTH_USERNAME=seventrees  # Match your Supabase DASHBOARD_USERNAME
-      - PROXY_AUTH_PASSWORD=Seven25!    # Match your Supabase DASHBOARD_PASSWORD
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
@@ -15,7 +12,7 @@ services:
     networks:
       - seventrees_network
     restart: unless-stopped
-
+    
   browserless_one:
     image: ghcr.io/browserless/chromium
     container_name: browserless_one
@@ -31,12 +28,11 @@ services:
       - MAX_CPU_PERCENT=85
       - TIMEOUT=60000
       - DEBUG=browserless.io:*
-    ports:
-      - 3000:3000
+    # Remove this line: ports: - 3000:3000
     networks:
       - seventrees_network
     restart: unless-stopped
-    
+   
   browserless_two:
     image: ghcr.io/browserless/chromium
     container_name: browserless_two
@@ -52,8 +48,7 @@ services:
       - MAX_CPU_PERCENT=85
       - TIMEOUT=60000
       - DEBUG=browserless.io:*
-    ports:
-      - 3000:3000      
+    # Remove this line: ports: - 3000:3000
     networks:
       - seventrees_network
     restart: unless-stopped
@@ -61,25 +56,8 @@ services:
 networks:
   seventrees_network:
     external: true
-    
+   
 volumes:
   postgres_data:
   caddy_data:
   caddy_config:
-
-  # caddy-l4:
-  #   build:
-  #     context: ./caddy-l4          # folder you create below
-  #     dockerfile: Dockerfile
-  #   container_name: caddy-l4
-  #   restart: unless-stopped
-  #   environment:
-  #     DB_DOMAIN: "testing.seventrees.nl"
-  #     ACME_EMAIL: "arvind.nohar@seventrees.nl"
-  #   volumes:
-  #     - ./caddy-l4/Caddyfile:/etc/caddy/Caddyfile:ro
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   networks:
-  #     - seventrees_network
