@@ -1,41 +1,57 @@
 services:
-  # caddy:
-  #   image: caddy:latest
-  #   container_name: caddy_shared
-  #   environment:
-  #     - PROXY_AUTH_USERNAME=seventrees  # Match your Supabase DASHBOARD_USERNAME
-  #     - PROXY_AUTH_PASSWORD=Seven25!    # Match your Supabase DASHBOARD_PASSWORD
-  #   volumes:
-  #     - ./Caddyfile:/etc/caddy/Caddyfile
-  #     - ../Production/app/static:/usr/share/caddy/static/prod  # Adjust path
-  #     - ../Testing/app/static:/usr/share/caddy/static/test     # Adjust path
-  #     - caddy_data:/data
-  #     - caddy_config:/config
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   networks:
-  #     - seventrees_network
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - postgres
-
-  caddy-l4:
-    build:
-      context: ./caddy-l4          # folder you create below
-      dockerfile: Dockerfile
-    container_name: caddy-l4
-    restart: unless-stopped
+  caddy:
+    image: caddy:latest
+    container_name: caddy_shared
     environment:
-      DB_DOMAIN: "testing.seventrees.nl"
-      ACME_EMAIL: "arvind.nohar@seventrees.nl"
+      - PROXY_AUTH_USERNAME=seventrees  # Match your Supabase DASHBOARD_USERNAME
+      - PROXY_AUTH_PASSWORD=Seven25!    # Match your Supabase DASHBOARD_PASSWORD
     volumes:
-      - ./caddy-l4/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ../Production/app/static:/usr/share/caddy/static/prod  # Adjust path
+      - ../Testing/app/static:/usr/share/caddy/static/test     # Adjust path
+      - caddy_data:/data
+      - caddy_config:/config
     ports:
       - "80:80"
       - "443:443"
     networks:
       - seventrees_network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+  browserless_one:
+    image: ghcr.io/browserless/chromium
+    environment:
+      - TOKEN=your-token-here
+      - CONCURRENT=10
+    networks:
+      - seventrees_network
+
+  browserless_two:
+    image: ghcr.io/browserless/chromium
+    environment:
+      - TOKEN=your-token-here
+      - CONCURRENT=10
+    networks:
+      - seventrees_network
+
+  # caddy-l4:
+  #   build:
+  #     context: ./caddy-l4          # folder you create below
+  #     dockerfile: Dockerfile
+  #   container_name: caddy-l4
+  #   restart: unless-stopped
+  #   environment:
+  #     DB_DOMAIN: "testing.seventrees.nl"
+  #     ACME_EMAIL: "arvind.nohar@seventrees.nl"
+  #   volumes:
+  #     - ./caddy-l4/Caddyfile:/etc/caddy/Caddyfile:ro
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   networks:
+  #     - seventrees_network
 
 networks:
   seventrees_network:
