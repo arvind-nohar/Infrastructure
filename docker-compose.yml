@@ -28,8 +28,6 @@ services:
       - MAX_CPU_PERCENT=85
       - TIMEOUT=60000
       - DEBUG=browserless.io:*
-      - HOST=testing.seventrees.nl
-      - EXTERNAL_HOST=testing.seventrees.nl
     ports:
       - 3000:3000  
     networks:
