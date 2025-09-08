@@ -29,7 +29,6 @@ services:
       - TIMEOUT=60000
       - DEBUG=browserless.io:*
       - HOST=testing.seventrees.nl
-      - PORT=443
       - EXTERNAL_HOST=testing.seventrees.nl
     ports:
       - 3000:3000  
