@@ -62,10 +62,13 @@ seven.seventrees.nl {
 
 testing.seventrees.nl {
     tls arvind.nohar@seventrees.nl
-    
+
     reverse_proxy browserless:3000 {
-        header_up Upgrade {>Upgrade}
-        header_up Connection {>Connection}
-        header_up Host {host}
+        # Force HTTP/1.1 upstream for clean WS upgrades
+        transport http {
+            versions h1_1
+        }
+        # Let Caddy manage Host and Upgrade/Connection automatically
+        # (no header_up needed)
     }
 }
